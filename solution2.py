@@ -6,32 +6,38 @@ email = []
 phone = []
 social = []
 
-# sending get request
-##r = requests.get("https://ful.io/")
-##if r.status_code == 200:
-##    # fetching page source code
-##    with open("index.html","wb") as f:
-##        f.write(r.content)
+
+url= input("Enter URL:")
+
+#sending get request
+r = requests.get(url)
+if r.status_code == 200:
+    # fetching page source code
+    with open("index.html","wb") as f:
+        f.write(r.content)
 
 
+social_media = ["facebook","linkedin","github","youtube","twitter","instagram","discord"]
+contact = ["tel:","phone:","mobile:"]
 
 # scraping information from html file
 with open("index.html","rb") as f:
     soup = BeautifulSoup(f,'html.parser')
     for link in soup.find_all('a'):
+        if link.has_attr('href'):
+            href = link.get('href')
+            # social links
+            if href.startswith('https://'):
+                social.extend([href for i in social_media if (i in href) and (href not in social)])
 
-        href = link.get('href')
-        # social links
-        if href.startswith('https://'):
-            if ("facebook" in href) or ("linkedin" in href):
-                social.append(href)
-
-        if ('mailto' in href):
-            email.append(href)
-            
-        # contact
-        if href.startswith('tel:'):
-            phone.append(href[4:])
+            if ('mailto' in href):
+                mail = href.split('?')[0][7:]
+                email.append(mail)
+                
+            # contact
+            m1= href.lower()
+            phone.extend([href.split(':')[1] for i in contact if i in m1])
+                    
 
 
 # Output
